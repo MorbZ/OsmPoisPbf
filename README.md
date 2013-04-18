@@ -3,7 +3,7 @@
 Simple Usage
 --------------
 
-* Download the [osmpois.jar](https://github.com/MorbZ/OsmPoisPbf/blob/master/osmpois.jar) file
+* Download the [osmpois.jar](http://morbz.de/downloads/osmpois.jar) file
 * Get the [planet file](http://planet.openstreetmap.org/pbf/) or any other .osm.pbf
 * Put the OpenStreetMap binary file (.pbf) in same directory as the jar file
 * Run java in a terminal (make sure you have at least 4GB of free RAM for the whole planet):  
