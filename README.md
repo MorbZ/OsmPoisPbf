@@ -1,66 +1,73 @@
-**Parses an OpenStreetMap file (.pbf) and outputs all POIs (points of interest) and cities in comma seperated files. Feel free to help improving the scripts.**
+**Extracts all POIs (Points of interest) from an OpenStreetMap file (.pbf) and outputs these in comma seperated files.** Feel free to help improving the scripts.
 
-Usage
+Simple Usage
 --------------
 
-To run the program:
-- Download the osmpois.jar file
-- Put the OpenStreetMap binary file (*.pbf) in same directory as the jar file. You can get the planet file here: http://planet.openstreetmap.org/pbf/
-- Run java in a terminal:
-	$ java -Xmx4g -jar osmpois.jar planet
-	The last parameter must be the .osm.pbf file name without file ending (e.g. "planet" for planet.osm.pbf)
+* Download the [osmpois.jar](https://github.com/MorbZ/OsmPoisPbf/blob/master/osmpois.jar) file
+* Get the [planet file](http://planet.openstreetmap.org/pbf/) or any other .osm.pbf
+* Put the OpenStreetMap binary file (.pbf) in same directory as the jar file
+* Run java in a terminal (make sure you have at least 4GB of free RAM for the whole planet):  
+    `java -Xmx4g -jar osmpois.jar planet`
+    * The last parameter must be the .osm.pbf file name without file ending (e.g. "planet" for planet.osm.pbf)
+
   
 Output
 --------------
+Two CSV output files are created: cities.csv and pois.csv. Actually these are pipe-seperated-files "|" as these are rarely used in location names (pipes are removed from names).
 
-You get two CSV output files: cities_*.csv and pois_*.csv.
-
-pois_planet.csv looks like this:
-132|46.07865|12.03679|Campo Sportivo
-21|46.08098|12.03941|Scuole Medie
-89|39.15728|-78.16837|Lowe's
-67|49.07546|8.82875|Humstermühle
-6|47.54811|-2.24219|Domaine de Bodeuc
-15|-34.78508|-58.65121|Unidad Carcelaria González Catán
-18|-34.77608|-58.66023|Cementerio Parque Lar de Paz
-
-Fields:
-- 1: POI-Type (see poi_types.csv list)
-- 2: Latitude
-- 3: Longitude
-- 4: Name of POI
-
-cities_planet.csv looks like this:
-Vidulini|hamlet|0|||||45.07631|13.85302
-Estancia Jankho Huayo|hamlet|0|||||-15.96947|-68.55526
-Auktsjaur|hamlet|0|||||65.74681|19.3973
-Petha Ammapura|village|0|||||16.53224|76.66857
+### pois.csv ###
+Sample:
+> 132|46.07865|12.03679|Campo Sportivo  
+> 21|46.08098|12.03941|Scuole Medie  
+> 89|39.15728|-78.16837|Lowe's  
+> 67|49.07546|8.82875|Humstermühle  
+> 6|47.54811|-2.24219|Domaine de Bodeuc  
+> 15|-34.78508|-58.65121|Unidad Carcelaria González Catán  
+> 18|-34.77608|-58.66023|Cementerio Parque Lar de Paz
 
 Fields:
-- 1: Name of city
-- 2: Type (can be: city, town, village, hamlet, suburb, neighbourhood)
-- 3: Population (often 0)
-- 4: Common location (OSM tag: is_in)
-- 5: Kontinent
-- 6: Country
-- 7: State
-- 8: Latitude
-- 9: Longitude
+
+* **1.)** POI-Type, see [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) for the list of poi type names
+* **2.)** Latitude  
+* **3.)** Longitude  
+* **4.)** Name of the POI  
+
+### cities.csv
+Sample:
+> Britz|suburb|0|||||52.44833|13.44234  
+> Schönow|suburb|0|Berlin,Bundesrepublik Deutschland,Europe||||52.41082|13.27071  
+> Woltersdorf|village|7198|Oder-Spree,Brandenburg,Bundesrepublik Deutschland,Europe||||52.44953|13.75615  
+> Berlin|city|3531201|||Germany||52.51703|13.38885  
+> Neubabelsberg|suburb|0|Babelsberg,Potsdam,Brandenburg,Bundesrepublik Deutschland,Europe||||52.40209|13.11264  
+> Fichtenau|hamlet|0|Schöneiche bei Berlin,Oder-Spree,Brandenburg,Bundesrepublik Deutschland,Europe||||52.46022|13.7008  
+> Lankwitz|suburb|0|||||52.43369|13.34548  
+
+Fields:
+
+* **1.)** Name of city
+* **2.)** Type (can be: city, town, village, hamlet, suburb, neighbourhood)
+* **3.)** Population
+* **4.)** Common location (OSM tag: is_in)
+* **5.)** Kontinent
+* **6.)** Country
+* **7.)** State
+* **8.)** Latitude
+* **9.)** Longitude
 
 POI Types
 --------------
 
-The parsing of tags is based on a collocation using the OSM Wiki (http://wiki.openstreetmap.org/wiki/Map_Features). The poi_types.csv is a list with the POI Types and their description/names. I also have a .png file with symbols for every POI Type, but there are some symbols which requires licenses so I won't post it here until I did some research and replaced these.
+The parsing of tags is based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. The [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) is a list which contains the POI Types and their description/names. I also have a .png file with symbols for every POI Type, but there are some symbols which requires licenses so I won't post it here until I did some research and replaced these.
 
 Memory Usage / Performance
 --------------
 
-This program loads all positions into the memory. The tags of nodes and areas are then parsed without fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you have give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
+The program loads all geographical positions into the memory. The tags of nodes and areas are then parsed without beeing fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you can give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
 
 Geography
 --------------
 
-Positions of areas are parsed based on their geometrical centre. The position of nodes is used directly. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
+The positions of areas are parsed based on their geometrical centre. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
 
 Closing Words
 --------------
