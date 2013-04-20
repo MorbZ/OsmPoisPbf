@@ -1,4 +1,4 @@
-**Scans an OpenStreetMap file for nodes and areas which have tags, that indicate them as POIs (Points of interest) and extracts those into a comma seperated file.**
+**Scans an OpenStreetMap file for nodes and areas whose tags indicate them as POIs (Points of interest) and extracts those into a comma seperated file.**
 
 The parsing of tags is based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. The [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) contains the POI-type-numbers used by this program and their associated names. For areas the positions of their geometrical centre is used. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
 
