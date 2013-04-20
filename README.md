@@ -1,4 +1,6 @@
-**Extracts all POIs (Points of interest) from an OpenStreetMap file (.pbf) and outputs these in comma seperated files.** Feel free to help improving the scripts.
+**Scans an OpenStreetMap file for nodes and areas which have tags, that indicate them as POIs (Points of interest) and extracts those into a comma seperated file.**
+
+The parsing of tags is based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. The [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) contains the POI-type-numbers used by this program and their associated names. For areas the positions of their geometrical centre is used. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
 
 Simple Usage
 --------------
@@ -27,7 +29,7 @@ Sample:
 
 Fields:
 
-* **1.)** POI-Type, see [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) for the list of poi type names
+* **1.)** POI-type, see [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) for the list of poi type names
 * **2.)** Latitude  
 * **3.)** Longitude  
 * **4.)** Name of the POI  
@@ -52,27 +54,17 @@ Fields:
 * **6.)** Country
 * **7.)** State
 * **8.)** Latitude
-* **9.)** Longitude
-
-POI Types
---------------
-
-The parsing of tags is based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. The [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) is a list which contains the POI Types and their description/names. I also have a .png file with symbols for every POI Type, but there are some symbols which requires licenses so I won't post it here until I did some research and replaced these.
+* **9.)** Longitudea
 
 Memory Usage / Performance
 --------------
 
 The program loads all geographical positions into the memory. The tags of nodes and areas are then parsed without beeing fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you can give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
 
-Geography
---------------
-
-The positions of areas are parsed based on their geometrical centre. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
-
 Closing Words
 --------------
 
-I wrote this program for an app I made and don't need it anymore, so don't expect any support or further development. Also it's while ago I made this, so I struggled a bit writing this documentation. Sorry for that =)
+I wrote this program for an app I made and don't need it anymore, so don't expect any support or further development. Also it's while ago I made this, so I struggled a bit writing this documentation. Sorry for that =) I have a .png file with symbols for every POI Type, but there are some symbols which requires licenses so I won't post it here until I did some research and replaced these. Feel free to help improving the scripts.
 
 License
 --------------
