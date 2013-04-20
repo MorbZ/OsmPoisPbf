@@ -57,7 +57,6 @@ public class Scanner {
 	public static final String SEPERATOR = "|";
 	
 	//files
-	private static final String PBF_NAME = "berlin";
 	private static String input_file, output_file, output_cities_file;
 	
 	//init
@@ -69,9 +68,10 @@ public class Scanner {
 			System.out.println("E: Please provide an input file");
 			System.exit(-1);
 		}
-		input_file = args[0] + ".osm.pbf";
-		output_file = "pois_" + PBF_NAME + ".csv";
-		output_cities_file = "cities_" + PBF_NAME + ".csv";
+		String pbf_name = args[0];
+		input_file = pbf_name + ".osm.pbf";
+		output_file = "pois_" + pbf_name + ".csv";
+		output_cities_file = "cities_" + pbf_name + ".csv";
 		
 		//setup output
 		try {
