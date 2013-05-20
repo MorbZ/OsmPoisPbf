@@ -1,0 +1,14 @@
+Most symbols are from http://www.sjjb.co.uk/mapicons/introduction with CC0 license.
+Other symbols are from http://thenounproject.com/ with some CC0 and some public domain licenses.
+
+CC-BY Icons:
+Football:
+<a href="http://thenounproject.com/noun/football/#icon-No582" target="_blank">Football</a>  from The Noun Project
+Basketball:
+<a href="http://thenounproject.com/noun/basketball/#icon-No393" target="_blank">Basketball</a>  from The Noun Project
+Bowling ball:
+<a href="http://thenounproject.com/noun/bowling-ball/#icon-No657" target="_blank">Bowling Ball</a>  from The Noun Project
+Roller skate:
+<a href="http://thenounproject.com/noun/roller-skate/#icon-No687" target="_blank">Roller Skate</a>  from The Noun Project
+House:
+<a href="http://thenounproject.com/noun/home/#icon-No293" target="_blank">Haus</a>  from The Noun Project
