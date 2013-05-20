@@ -15,7 +15,7 @@ Simple Usage
   
 Output
 --------------
-Two CSV output files are created: cities.csv and pois.csv. Actually these are pipe-seperated-files "|" as these are rarely used in location names (pipes are removed from names).
+Two CSV output files are created: [cities.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/doc/cities_csv.md) and pois.csv. Actually these are pipe-seperated-files "|" as these are rarely used in location names (pipes are removed from names).
 
 ### pois.csv ###
 Sample:
@@ -32,39 +32,24 @@ Fields:
 * **1.)** POI-type, see [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) for the list of poi type names
 * **2.)** Latitude  
 * **3.)** Longitude  
-* **4.)** Name of the POI  
-
-### cities.csv
-Sample:
-> Britz|suburb|0|||||52.44833|13.44234  
-> Schönow|suburb|0|Berlin,Bundesrepublik Deutschland,Europe||||52.41082|13.27071  
-> Woltersdorf|village|7198|Oder-Spree,Brandenburg,Bundesrepublik Deutschland,Europe||||52.44953|13.75615  
-> Berlin|city|3531201|||Germany||52.51703|13.38885  
-> Neubabelsberg|suburb|0|Babelsberg,Potsdam,Brandenburg,Bundesrepublik Deutschland,Europe||||52.40209|13.11264  
-> Fichtenau|hamlet|0|Schöneiche bei Berlin,Oder-Spree,Brandenburg,Bundesrepublik Deutschland,Europe||||52.46022|13.7008  
-> Lankwitz|suburb|0|||||52.43369|13.34548  
-
-Fields:
-
-* **1.)** Name of city
-* **2.)** Type (can be: city, town, village, hamlet, suburb, neighbourhood)
-* **3.)** Population
-* **4.)** Common location (OSM tag: is_in)
-* **5.)** Kontinent
-* **6.)** Country
-* **7.)** State
-* **8.)** Latitude
-* **9.)** Longitudea
+* **4.)** Name of the POI
 
 Memory Usage / Performance
 --------------
 
 The program loads all geographical positions into the memory. The tags of nodes and areas are then parsed without beeing fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you can give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
 
+Symbols
+--------------
+
+There is a sample high-resolution symbol set for each type of POI. Please refer [to the symbol licenses](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_licenses.txt) (mostly CC0) before using this. The single symbols of the grid are arranged based on their [POI-type-id](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) starting with ID 1 from upper left, then second from left and so on.
+
+[![POI Symbol Grid](https://raw.github.com/MorbZ/OsmPoisPbf/master/poi_symbols/symbol_grid.png) ""](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_grid.png)
+
 Closing Words
 --------------
 
-I wrote this program for an app I made and don't need it anymore, so don't expect any support or further development. Also it's while ago I made this, so I struggled a bit writing this documentation. Sorry for that =) I have a .png file with symbols for every POI Type, but there are some symbols which requires licenses so I won't post it here until I did some research and replaced these. Feel free to help improving the scripts.
+I wrote this program for an app I made and don't need it anymore, so don't expect any support or further development. So feel free to help improving the scripts. Also it's while ago I made this, so I struggled a bit writing this documentation. 
 
 License
 --------------
