@@ -44,7 +44,7 @@ Symbols
 
 There is a sample high-resolution symbol set for each type of POI. Please refer [to the symbol licenses](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_licenses.txt) (mostly CC0) before using this. The single symbols of the grid are arranged based on their [POI-type-id](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) starting with ID 1 from upper left, then second from left and so on.
 
-[![POI Symbol Grid](https://raw.github.com/MorbZ/OsmPoisPbf/master/poi_symbols/symbol_grid.png) ""](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_grid.png)
+[![POI Symbol Grid](https://raw.github.com/MorbZ/OsmPoisPbf/master/poi_symbols/symbol_grid.png) ](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_grid.png)
 
 Closing Words
 --------------
