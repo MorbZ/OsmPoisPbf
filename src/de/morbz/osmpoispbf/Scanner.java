@@ -152,6 +152,7 @@ public class Scanner {
 		    }
 		    public void release() { }
 		    public void complete() { }
+		    public void initialize(Map<String, Object> map) { }
 		};
 		
 		//start reader
