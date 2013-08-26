@@ -14,7 +14,7 @@
 	see http://www.gnu.org/licenses/.
 */
 
-package de.morbz.osmpoispbf;
+package de.morbz.osmpoispbf.city;
 
 import java.util.Collection;
 

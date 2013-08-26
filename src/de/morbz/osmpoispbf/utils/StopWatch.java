@@ -1,4 +1,4 @@
-package de.morbz.osmpoispbf;
+package de.morbz.osmpoispbf.utils;
 
 /*
 Copyright (c) 2005, Corey Goldberg

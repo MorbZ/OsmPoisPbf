@@ -14,9 +14,9 @@
 	see http://www.gnu.org/licenses/.
 */
 
-package de.morbz.osmpoispbf;
+package de.morbz.osmpoispbf.tags;
 
-public class Const {
+public class Tags {
 	//special const for superclasses
 	public static final int SUPER_PLACE_OF_WORSHIP = -1;
 	public static final int SUPER_MAN_MADE_TOWER = -2;

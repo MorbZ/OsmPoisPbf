@@ -14,9 +14,11 @@
 	see http://www.gnu.org/licenses/.
 */
 
-package de.morbz.osmpoispbf;
+package de.morbz.osmpoispbf.city;
 
 import java.awt.Point;
+
+import de.morbz.osmpoispbf.Scanner;
 
 public class CityVO {
 	public String name = "";

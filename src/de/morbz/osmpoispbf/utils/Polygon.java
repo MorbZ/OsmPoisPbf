@@ -14,7 +14,7 @@
 	see http://www.gnu.org/licenses/.
 */
 
-package de.morbz.osmpoispbf;
+package de.morbz.osmpoispbf.utils;
 
 import java.awt.Point;
 import java.util.List;

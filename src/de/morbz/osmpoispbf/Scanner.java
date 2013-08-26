@@ -41,6 +41,12 @@ import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.RunnableSource;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
+import de.morbz.osmpoispbf.city.CityChecker;
+import de.morbz.osmpoispbf.city.CityVO;
+import de.morbz.osmpoispbf.tags.TagChecker;
+import de.morbz.osmpoispbf.utils.Polygon;
+import de.morbz.osmpoispbf.utils.StopWatch;
+
 public class Scanner {
 	private static StopWatch stop_watch = new StopWatch();
 	

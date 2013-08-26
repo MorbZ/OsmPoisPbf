@@ -3,4 +3,6 @@
 /.project
 /.settings/
 /.classpath
-/berlin.osm.pbf
+/*.osm.pbf
+/pois_*.csv
+/cities_*.csv
