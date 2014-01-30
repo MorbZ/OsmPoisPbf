@@ -2,6 +2,8 @@
 
 The parsing of tags is based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. The [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) contains the POI-type-numbers used by this program and their associated names. For areas the positions of their geometrical centre is used. When there is a node above a same tagged area you get duplicates. So make sure you remove the duplicates if you have to (e.g. by running a radius check on same names and types).
 
+[![Flattr me](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/2481051/MorbZOsmPoisPbf-on-GitHub)
+
 Simple Usage
 --------------
 
@@ -11,33 +13,35 @@ Simple Usage
 * Run java in a terminal (make sure you have at least 4GB of free RAM for the whole planet):  
     `java -Xmx4g -jar osmpois.jar planet`
     * The last parameter must be the .osm.pbf file name without file ending (e.g. "planet" for planet.osm.pbf)
+    * If you add the `-cities` (or `-c`) parameter after the file name, an additional [cities.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/doc/cities_csv.md) is created that contains all cities.
 
   
 Output
 --------------
-Two CSV output files are created: [cities.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/doc/cities_csv.md) and pois.csv. Actually these are pipe-seperated-files "|" as these are rarely used in location names (pipes are removed from names).
+A CSV output file called pois.csv is created. Actually it's a pipe-seperated-file "|" as these are rarely used in location names (pipes are removed from names).
 
 ### pois.csv ###
-Sample:
-> 132|46.07865|12.03679|Campo Sportivo  
-> 21|46.08098|12.03941|Scuole Medie  
-> 89|39.15728|-78.16837|Lowe's  
-> 67|49.07546|8.82875|Humstermühle  
-> 6|47.54811|-2.24219|Domaine de Bodeuc  
-> 15|-34.78508|-58.65121|Unidad Carcelaria González Catán  
-> 18|-34.77608|-58.66023|Cementerio Parque Lar de Paz
+Sample (spaces added for better readability):
+> 28 | N2272819038 | 52.46276 | 13.37742 | Bose-Eck  
+> 28 | N2272820300 | 52.46667 | 13.35347 | Zum Bunker  
+> 40 | W4377786 | 52.50574 | 13.32238 | Savignyplatz  
+> 145 | W4381164 | 52.50517 | 13.32113 | Else-Ury-Bogen  
+> 40 | W4392438 | 52.52438 | 13.29288 | Schlossgarten  
+> 145 | W4395344 | 52.51857 | 13.37463 | Platz der Republik  
+> 18 | W4401982 | 52.48562 | 13.31099 | Friedhof Wilmersdorf  
 
 Fields:
 
 * **1.)** POI-type, see [poi\_types.csv](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_types.csv) for the list of poi type names
-* **2.)** Latitude  
-* **3.)** Longitude  
-* **4.)** Name of the POI
+* **2.)** OSM-ID of the element, first character indicates the element type (**W**ay or **N**ode)
+* **3.)** Latitude  
+* **4.)** Longitude  
+* **5.)** Name of the POI
 
 Memory Usage / Performance
 --------------
 
-The program loads all geographical positions into the memory. The tags of nodes and areas are then parsed without beeing fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you can give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
+The program loads only necessary geographical positions into the memory. The tags of nodes and areas are then parsed without beeing fully loaded into memory. For the whole planet this takes about 3.5GB of RAM (make sure you fit the -Xmx parameter and if you can give about 5-6GB RAM, as it is faster). Parsing of the whole planet takes about 1.5 hours on an AMD Athlon 64 6000+ X2 (one core used).
 
 Symbols
 --------------
@@ -46,15 +50,10 @@ There is a sample high-resolution symbol set for each type of POI. Please refer 
 
 [![POI Symbol Grid](https://raw.github.com/MorbZ/OsmPoisPbf/master/poi_symbols/symbol_grid.png) ](https://github.com/MorbZ/OsmPoisPbf/blob/master/poi_symbols/symbol_grid.png)
 
-Closing Words
---------------
-
-I wrote this program for an app I made and don't need it anymore, so don't expect any support or further development. So feel free to help improving the scripts. Also it's while ago I made this, so I struggled a bit writing this documentation. 
-
 License
 --------------
 
-Copyright 2012-2013, Merten Peetz
+Copyright 2012-2014, Merten Peetz
 
 OsmPoisPbf is free software: you can redistribute it and/or modify it under the terms of the GNU 
 General Public License as published by the Free Software Foundation, either version 3 of the 
