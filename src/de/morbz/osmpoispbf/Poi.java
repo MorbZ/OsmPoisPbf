@@ -20,21 +20,35 @@ import java.awt.Point;
 
 public class Poi {
 	public String name;
-	public int kat;
+	public int cat;
 	public Point coords = null;
+	public String osmId = "";
 	
 	public String toCsv() {
 		if(coords == null) {
 			return "";
 		}
-		return kat+Scanner.SEPERATOR+(double)coords.x/100000+Scanner.SEPERATOR+(double)coords.y/100000+Scanner.SEPERATOR+name.replace(Scanner.SEPERATOR, ";");
+		
+		String str = "";
+		str += cat + Scanner.SEPERATOR;
+		str += osmId + Scanner.SEPERATOR;
+		str += (double)coords.x/100000 + Scanner.SEPERATOR;
+		str += (double)coords.y/100000 + Scanner.SEPERATOR;
+		str += getEscapedCsvString(name);
+		return str;
 	}
 	
 	public String toString() {
 		if(coords != null) {
-			return "[Poi(name=\""+name+"\",kat="+kat+",coords="+coords.toString()+")]";
+			return "[Poi(name=\""+name+"\",osm-id=\""+osmId+"\",cat="+cat+",coords="+coords.toString()+")]";
 		} else {
-			return "[Poi(name=\""+name+"\",kat="+kat+"]";
+			return "[Poi(name=\""+name+"\",osm-id=\""+osmId+"\",cat="+cat+"]";
 		}
+	}
+	
+	private String getEscapedCsvString(String str) {
+		str = str.replace(Scanner.SEPERATOR, ";");
+		str = str.replace("\n", "");
+		return str;
 	}
 }

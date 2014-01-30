@@ -267,7 +267,7 @@ public class Scanner {
 		poi.coords = point;
 		
 		//save
-		savePoi(poi);
+		savePoi(poi, node);
 	}
 
 	//handle way
@@ -305,11 +305,22 @@ public class Scanner {
 		poi.coords = Polygon.centroid(points);
 		
 		//save
-		savePoi(poi);
+		savePoi(poi, way);
 	}
 	
 	/* POI */
-	private static void savePoi(Poi poi) {
+	private static void savePoi(Poi poi, Entity entity) {
+		//add id
+		String id = "";
+		if(entity instanceof Way) {
+			id = "W";
+		} else if(entity instanceof Node) {
+			id = "N";
+		}
+		id += entity.getId();
+		poi.osmId = id;
+
+		//save
 		System.out.println(poi);
 		try { 
 			writer.write(poi.toCsv()+"\n");

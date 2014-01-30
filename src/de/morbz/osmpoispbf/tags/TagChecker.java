@@ -547,10 +547,10 @@ public class TagChecker {
 	}
 	
 	//creates poi object
-	private static Poi createPoi(String name, int kat) {
+	private static Poi createPoi(String name, int cat) {
 		Poi poi = new Poi();
 		poi.name = name;
-		poi.kat = kat;
+		poi.cat = cat;
 		return poi;
 	}
 }
