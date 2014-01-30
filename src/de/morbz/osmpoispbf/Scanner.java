@@ -55,12 +55,14 @@ public class Scanner {
 	private static HashSet<Long> neededNodes;
 	private static int scanStep;
 	private static Writer writer, writer_cities;
+	private static boolean parseCities = false;
 	
 	//const
 	private static final int STEP_WAY_NODES = 1;
 	private static final int STEP_NODES = 2;
 	private static final int STEP_WAYS = 3;
 	public static final String SEPERATOR = "|";
+	private static final String VERSION = "v1.0.3";
 	
 	//files
 	private static String input_file, output_file, output_cities_file;
@@ -69,11 +71,24 @@ public class Scanner {
 	public static void main(String[] args) {
 		stop_watch.start();
 		
-		//Make file names
+		//Parse command line arguments
+		System.out.println("OsmPoisPbf " + VERSION + " started");
 		if(args.length == 0) {
 			System.out.println("E: Please provide an input file");
 			System.exit(-1);
+		} else if(args.length == 2) {
+			if(args[1].equals("-c") || args[1].equals("-cities")) {
+				parseCities = true;
+			} else {
+				System.out.println("E: Could not recognize the last parameter");
+				System.exit(-1);
+			}
+		} else if(args.length > 2) {
+			System.out.println("E: Too many parameters given");
+			System.exit(-1);
 		}
+		
+		//set filenames
 		String pbf_name = args[0];
 		input_file = pbf_name + ".osm.pbf";
 		output_file = "pois_" + pbf_name + ".csv";
@@ -82,7 +97,9 @@ public class Scanner {
 		//setup output
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output_file),"UTF8"));
-			writer_cities = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output_cities_file),"UTF8"));
+			if(parseCities) {
+				writer_cities = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output_cities_file),"UTF8"));
+			}
 		} catch(IOException e) {
 			System.out.println("E: Output file error");
 			System.exit(-1);
@@ -110,7 +127,9 @@ public class Scanner {
 		//close writer
 		try {
 			writer.close();
-			writer_cities.close();
+			if(parseCities) {
+				writer_cities.close();
+			}
 		} catch(IOException e) {
 			System.out.println("E: Output file close error");
 			System.exit(-1);
@@ -212,20 +231,22 @@ public class Scanner {
 		Collection<Tag> tags = node.getTags();
 		
 		/* City */
-		//check city
-		CityVO city = CityChecker.getCity(tags);
-		if(city != null) {
-			//add coords
-			if(point == null) {
-				point = new Point(
-						DegreeToInt(node.getLatitude()),
-						DegreeToInt(node.getLongitude())
-				);
+		if(parseCities) {
+			//check city
+			CityVO city = CityChecker.getCity(tags);
+			if(city != null) {
+				//add coords
+				if(point == null) {
+					point = new Point(
+							DegreeToInt(node.getLatitude()),
+							DegreeToInt(node.getLongitude())
+					);
+				}
+				city.coords = point;
+				
+				//save
+				saveCity(city);
 			}
-			city.coords = point;
-			
-			//save
-			saveCity(city);
 		}
 
 		/* POI */
@@ -300,6 +321,10 @@ public class Scanner {
 	
 	/* City */
 	private static void saveCity(CityVO city) {
+		if(!parseCities) {
+			return;
+		}
+		
 		System.out.println(city);
 		try { 
 			writer_cities.write(city.toCsv()+"\n");
