@@ -19,36 +19,39 @@ package de.morbz.osmpoispbf;
 import net.morbz.osmonaut.osm.LatLon;
 
 public class Poi {
-	public String name;
-	public int cat;
-	public LatLon coords = null;
-	public String osmId = "";
+	private String name;
+	private String cat;
+	private LatLon coords;
+	private String osmId;
+	
+	public Poi(String name, String cat, LatLon coords, String osmId) {
+		this.name = name;
+		this.cat = cat;
+		this.coords = coords;
+		this.osmId = osmId;
+	}
 	
 	public String toCsv() {
-		if(coords == null) {
-			return "";
-		}
-		
 		String str = "";
-		str += cat + Scanner.SEPERATOR;
+		str += getEscapedCsvString(cat) + Scanner.SEPERATOR;
 		str += osmId + Scanner.SEPERATOR;
-		str += (double)Math.round(coords.getLat()*100000)/100000 + Scanner.SEPERATOR;
-		str += (double)Math.round(coords.getLon()*100000)/100000 + Scanner.SEPERATOR;
+		str += round(coords.getLat()) + Scanner.SEPERATOR;
+		str += round(coords.getLon()) + Scanner.SEPERATOR;
 		str += getEscapedCsvString(name);
 		return str;
 	}
 	
 	public String toString() {
-		if(coords != null) {
-			return "[Poi(name=\""+name+"\",osm-id=\""+osmId+"\",cat="+cat+",coords="+coords.toString()+")]";
-		} else {
-			return "[Poi(name=\""+name+"\",osm-id=\""+osmId+"\",cat="+cat+"]";
-		}
+		return "[Poi(name=\""+name+"\",osm-id=\""+osmId+"\",cat="+cat+",coords="+coords.toString()+")]";
 	}
 	
 	private String getEscapedCsvString(String str) {
-		str = str.replace(Scanner.SEPERATOR, ";");
-		str = str.replace("\n", "");
+		str = str.replace(Scanner.SEPERATOR, " ");
 		return str;
+	}
+	
+	private double round(double coordinate) {
+		int factor = 10000000; // 7 decimals (OSM default)
+		return (double)Math.round(coordinate * factor) / factor;
 	}
 }

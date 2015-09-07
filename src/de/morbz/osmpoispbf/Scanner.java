@@ -30,27 +30,21 @@ import net.morbz.osmonaut.osm.Entity;
 import net.morbz.osmonaut.osm.EntityType;
 import net.morbz.osmonaut.osm.Tags;
 import net.morbz.osmonaut.osm.Way;
-import de.morbz.osmpoispbf.tags.TagChecker;
 import de.morbz.osmpoispbf.utils.StopWatch;
 
 public class Scanner {
-	private static StopWatch stop_watch = new StopWatch();
-	private static List<Filter> filters;
-	
-	//vars
-	private static Writer writer, writer_cities;
-	private static boolean parseCities = false;
-	
-	//const
+	// Const
 	public static final String SEPERATOR = "|";
 	private static final String VERSION = "v1.0.3";
 	
-	//files
-	private static String input_file, output_file, output_cities_file;
+	// Vars
+	private static Writer writer;
+	private static List<Filter> filters;
 	
-	//init
 	public static void main(String[] args) {
-		stop_watch.start();
+		// Start watch
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		
 		// Get filter rules
 		FilterFileParser parser = new FilterFileParser(null);
@@ -62,62 +56,60 @@ public class Scanner {
 		// Parse command line arguments
 		System.out.println("OsmPoisPbf " + VERSION + " started");
 		if(args.length == 0) {
-			System.out.println("E: Please provide an input file");
+			System.out.println("Error: Please provide an input file");
 			System.exit(-1);
-		} else if(args.length == 2) {
-			if(args[1].equals("-c") || args[1].equals("-cities")) {
-				parseCities = true;
-			} else {
-				System.out.println("E: Could not recognize the last parameter");
-				System.exit(-1);
-			}
-		} else if(args.length > 2) {
-			System.out.println("E: Too many parameters given");
+		} else if(args.length > 1) {
+			System.out.println("Error: Too many parameters given");
 			System.exit(-1);
 		}
 		
-		//set filenames
-		String pbf_name = args[0];
-		input_file = pbf_name + ".osm.pbf";
-		output_file = "pois_" + pbf_name + ".csv";
-		output_cities_file = "cities_" + pbf_name + ".csv";
+		// Make filenames
+		String pbfName = args[0];
+		String inputFile = pbfName + ".osm.pbf";
+		String outputFile = "pois_" + pbfName + ".csv";
 		
-		//setup output
+		// Setup CSV output
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output_file),"UTF8"));
-			if(parseCities) {
-				writer_cities = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(output_cities_file),"UTF8"));
-			}
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF8"));
 		} catch(IOException e) {
-			System.out.println("E: Output file error");
+			System.out.println("Error: Output file error");
 			System.exit(-1);
 		}
 		
 		// Setup OSMonaut
 		EntityFilter filter = new EntityFilter(true, true, false);
-		Osmonaut naut = new Osmonaut(input_file, filter);
+		Osmonaut naut = new Osmonaut(inputFile, filter);
 		
 		// Start OSMonaut
 		naut.scan(new IOsmonautReceiver() {
 		    @Override
 		    public boolean needsEntity(EntityType type, Tags tags) {
-		        return TagChecker.getPoi(tags, filters) != null;
+		        return getCategory(tags, filters) != null;
 		    }
 
 		    @Override
 		    public void foundEntity(Entity entity) {
-		    	// Check if closed
+		    	// Check if way is closed
 		    	if(entity.getEntityType() == EntityType.WAY) {
 		    		if(!((Way)entity).isClosed()) {
 		    			return;
 		    		}
 		    	}
 		    	
-		        // Get POI
-		    	Poi poi = TagChecker.getPoi(entity.getTags(), filters);
-		    	poi.coords = entity.getCenter();
-		    	
-		    	//add id
+		    	// Get name
+		    	Tags tags = entity.getTags();
+		    	String name = tags.get("name");
+				if(name == null) {
+					return;
+				}
+				
+				// Get category
+				String cat = getCategory(tags, filters);
+				if(cat == null) {
+					return;
+				}
+				
+				// Make OSM-ID
 				String id = "";
 				if(entity.getEntityType() == EntityType.WAY) {
 					id = "W";
@@ -125,42 +117,79 @@ public class Scanner {
 					id = "N";
 				}
 				id += entity.getId();
-				poi.osmId = id;
+		    	
+		        // Make POI
+				Poi poi = new Poi(name, cat, entity.getCenter(), id);
 				
-				savePoi(poi);
+				// Output
+				System.out.println(poi);
+				
+				// Write to file
+				try { 
+					writer.write(poi.toCsv()+"\n");
+				} catch(IOException e) {
+					System.out.println("Error: Output file write error");
+					System.exit(-1);
+				}
 		    }
 		});
 		
-		quit();
-	}
-	
-	/* POI */
-	private static void savePoi(Poi poi) {
-		//save
-		System.out.println(poi);
-		try { 
-			writer.write(poi.toCsv()+"\n");
-		} catch(IOException e) {
-			System.out.println("E: Output file write error");
-			System.exit(-1);
-		}
-	}
-	
-	//quit
-	private static void quit() {
-		//close writer
+		// Close writer
 		try {
 			writer.close();
-			if(parseCities) {
-				writer_cities.close();
-			}
 		} catch(IOException e) {
-			System.out.println("E: Output file close error");
+			System.out.println("Error: Output file close error");
 			System.exit(-1);
 		}
 		
-		stop_watch.stop();
-		System.out.println("elapsed time in milliseconds: " + stop_watch.getElapsedTime());
+		// Show elapsed time
+		stopWatch.stop();
+		System.out.println("Elapsed time in milliseconds: " + stopWatch.getElapsedTime());
+		
+		// Quit
 		System.exit(0);
+	}
+	
+	/* Categories */
+	public static String getCategory(Tags tags, List<Filter> filters) {
+		// Has at least two tags (name and tag for category)
+		if(tags.size() < 2) {
+			return null;
+		}
+		
+		// Check category
+		String cat = null;
+		for(Filter filter : filters) {
+			cat = getCategoryRecursive(filter, tags, null);
+			if(cat != null) {
+				return cat;
+			}
+		}
+		return null;
+	}
+	
+	private static String getCategoryRecursive(Filter filter, Tags tags, String key) {
+		// Use key of parent rule or current
+		if(filter.hasKey()) {
+			key = filter.getKey();
+		}
+		
+		// Check for key/value
+		if(tags.hasKey(key)) {
+			if(filter.hasValue() && !filter.getValue().equals(tags.get(key))) {
+				return null;
+			}
+		} else {
+			return null;
+		}
+		
+		// If childs have categories, those will be used
+		for(Filter child : filter.childs) {
+			String cat = getCategoryRecursive(child, tags, key);
+			if(cat != null) {
+				return cat;
+			}
+		}
+		return filter.getCategory();
 	}
 }
