@@ -16,46 +16,31 @@
 
 package de.morbz.osmpoispbf.tags;
 
-import java.util.Collection;
-import java.util.Hashtable;
 import java.util.List;
 
-import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
-
+import net.morbz.osmonaut.osm.Tags;
 import de.morbz.osmpoispbf.Filter;
 import de.morbz.osmpoispbf.Poi;
 
 public class TagChecker {
-	public static Poi getPoi(Collection<Tag> tags, List<Filter> filters) {
+	public static Poi getPoi(Tags tags, List<Filter> filters) {
 		// Has at least two tags (name and tag for category)
 		if(tags.size() < 2) {
 			return null;
 		}
 		
-		// Build tag table
-		String name = null;
-		String k, v;
-		Hashtable<String, String> tags2 = new Hashtable<String, String>();
-		for(Tag tag : tags) {
-			k = tag.getKey();
-			v = tag.getValue();
-			tags2.put(k, v);
-			
-			// Get name
-			if(k.equals("name")) {
-				name = v;
-			}
-		}
-		
 		// Check name
-		if(name == null) {
+		String name;
+		if(tags.hasKey("name")) {
+			name = tags.get("name");
+		} else {
 			return null;
 		}
 		
 		// Check category
 		String cat = null;
 		for(Filter filter : filters) {
-			cat = getCategory(filter, tags2, null);
+			cat = getCategory(filter, tags, null);
 			if(cat != null) {
 				return createPoi(name, Integer.valueOf(cat));
 			}
@@ -63,14 +48,14 @@ public class TagChecker {
 		return null;
 	}
 	
-	private static String getCategory(Filter filter, Hashtable<String, String> tags, String key) {
+	private static String getCategory(Filter filter, Tags tags, String key) {
 		// Use key of parent rule or current
 		if(filter.hasKey()) {
 			key = filter.getKey();
 		}
 		
 		// Check for key/value
-		if(tags.containsKey(key)) {
+		if(tags.hasKey(key)) {
 			if(filter.hasValue() && !filter.getValue().equals(tags.get(key))) {
 				return null;
 			}

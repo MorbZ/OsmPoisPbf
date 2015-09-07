@@ -16,35 +16,21 @@
 
 package de.morbz.osmpoispbf;
 
-import java.awt.Point;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
-import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
-import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
-import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
-import org.openstreetmap.osmosis.core.domain.v0_6.Way;
-import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
-import org.openstreetmap.osmosis.core.task.v0_6.RunnableSource;
-import org.openstreetmap.osmosis.core.task.v0_6.Sink;
-
-import de.morbz.osmpoispbf.city.CityChecker;
-import de.morbz.osmpoispbf.city.CityVO;
+import net.morbz.osmonaut.EntityFilter;
+import net.morbz.osmonaut.IOsmonautReceiver;
+import net.morbz.osmonaut.Osmonaut;
+import net.morbz.osmonaut.osm.Entity;
+import net.morbz.osmonaut.osm.EntityType;
+import net.morbz.osmonaut.osm.Tags;
+import net.morbz.osmonaut.osm.Way;
 import de.morbz.osmpoispbf.tags.TagChecker;
-import de.morbz.osmpoispbf.utils.Polygon;
 import de.morbz.osmpoispbf.utils.StopWatch;
 
 public class Scanner {
@@ -52,16 +38,10 @@ public class Scanner {
 	private static List<Filter> filters;
 	
 	//vars
-	private static Map<Long, Point> nodes;
-	private static HashSet<Long> neededNodes;
-	private static int scanStep;
 	private static Writer writer, writer_cities;
 	private static boolean parseCities = false;
 	
 	//const
-	private static final int STEP_WAY_NODES = 1;
-	private static final int STEP_NODES = 2;
-	private static final int STEP_WAYS = 3;
 	public static final String SEPERATOR = "|";
 	private static final String VERSION = "v1.0.3";
 	
@@ -79,7 +59,7 @@ public class Scanner {
 			System.exit(-1);
 		}
 		
-		//Parse command line arguments
+		// Parse command line arguments
 		System.out.println("OsmPoisPbf " + VERSION + " started");
 		if(args.length == 0) {
 			System.out.println("E: Please provide an input file");
@@ -113,21 +93,57 @@ public class Scanner {
 			System.exit(-1);
 		}
 		
-		//setup tables
-		nodes = new HashMap<Long, Point>();
-		neededNodes = new HashSet<Long>();
+		// Setup OSMonaut
+		EntityFilter filter = new EntityFilter(true, true, false);
+		Osmonaut naut = new Osmonaut(input_file, filter);
 		
-		//first scan ways nodes
-		System.out.println("Step: STEP_WAY_NODES");
-		scanStep = STEP_WAY_NODES;
-		scanFile();
-		
-		//then scan nodes
-		System.out.println("Step: STEP_NODES");
-		scanStep = STEP_NODES;
-		scanFile();
+		// Start OSMonaut
+		naut.scan(new IOsmonautReceiver() {
+		    @Override
+		    public boolean needsEntity(EntityType type, Tags tags) {
+		        return TagChecker.getPoi(tags, filters) != null;
+		    }
+
+		    @Override
+		    public void foundEntity(Entity entity) {
+		    	// Check if closed
+		    	if(entity.getEntityType() == EntityType.WAY) {
+		    		if(!((Way)entity).isClosed()) {
+		    			return;
+		    		}
+		    	}
+		    	
+		        // Get POI
+		    	Poi poi = TagChecker.getPoi(entity.getTags(), filters);
+		    	poi.coords = entity.getCenter();
+		    	
+		    	//add id
+				String id = "";
+				if(entity.getEntityType() == EntityType.WAY) {
+					id = "W";
+				} else if(entity.getEntityType() == EntityType.NODE) {
+					id = "N";
+				}
+				id += entity.getId();
+				poi.osmId = id;
+				
+				savePoi(poi);
+		    }
+		});
 		
 		quit();
+	}
+	
+	/* POI */
+	private static void savePoi(Poi poi) {
+		//save
+		System.out.println(poi);
+		try { 
+			writer.write(poi.toCsv()+"\n");
+		} catch(IOException e) {
+			System.out.println("E: Output file write error");
+			System.exit(-1);
+		}
 	}
 	
 	//quit
@@ -146,216 +162,5 @@ public class Scanner {
 		stop_watch.stop();
 		System.out.println("elapsed time in milliseconds: " + stop_watch.getElapsedTime());
 		System.exit(0);
-	}
-	
-	/* File */
-	//scan file
-	private static void scanFile() {
-		File file = new File(input_file);
-		
-		//get entities
-		Sink sinkImplementation = new Sink() {
-		    public void process(EntityContainer entityContainer) {
-		        Entity entity = entityContainer.getEntity();
-		        if (entity instanceof Node) {
-		        	if(scanStep == STEP_NODES) {
-		        		//node
-		        		handleNode((Node) entity);
-		        	}
-		        } else if (entity instanceof Way) {
-		        	if(scanStep == STEP_NODES) { 
-		        		System.out.println("Step: STEP_WAYS");
-		        		scanStep = STEP_WAYS;
-		        	}
-		        	if(scanStep == STEP_WAY_NODES) {
-			        	//way nodes
-			            handleWayNodes((Way) entity);
-		        	} else if(scanStep == STEP_WAYS) {
-		        		//way
-			            handleWay((Way) entity);
-		        	}
-		        } /*else if (entity instanceof Relation) {
-		        }*/
-		    }
-		    public void release() { }
-		    public void complete() { }
-		    public void initialize(Map<String, Object> map) { }
-		};
-		
-		//start reader
-		RunnableSource reader;
-		try {
-			reader = new crosby.binary.osmosis.OsmosisReader(
-		            new FileInputStream(file));
-			reader.setSink(sinkImplementation);
-			Thread readerThread = new Thread(reader);
-			readerThread.start();
-			
-			while (readerThread.isAlive()) {
-			    try {
-			        readerThread.join();
-			    } catch (InterruptedException e) {
-			        /* do nothing */
-			    }
-			}
-		} catch(FileNotFoundException e) {
-			System.out.println("E: Input file not found");
-			System.exit(-1);
-		}
-	}
-	
-	/* Entities */
-	//handle way nodes
-	private static void handleWayNodes(Way way) {
-		//check if has correct tags
-		if(TagChecker.getPoi(way.getTags(), filters) == null) {
-			return;
-		}
-		
-		//go through way nodes and request them
-		List<WayNode> waynodes = way.getWayNodes();
-		for(WayNode waynode : waynodes) {
-			neededNodes.add(waynode.getNodeId());
-		}
-	}
-	
-	//handle node
-	private static void handleNode(Node node) {
-		Point point = null;
-		
-		//is this nodes requested?
-		long node_id = node.getId();
-		if(neededNodes.contains(node_id)) {
-			//create point and add
-			point = new Point(
-					DegreeToInt(node.getLatitude()),
-					DegreeToInt(node.getLongitude())
-			);
-			nodes.put(node_id, point);
-			neededNodes.remove(node_id);
-		}
-		
-		//vars
-		Collection<Tag> tags = node.getTags();
-		
-		/* City */
-		if(parseCities) {
-			//check city
-			CityVO city = CityChecker.getCity(tags);
-			if(city != null) {
-				//add coords
-				if(point == null) {
-					point = new Point(
-							DegreeToInt(node.getLatitude()),
-							DegreeToInt(node.getLongitude())
-					);
-				}
-				city.coords = point;
-				
-				//save
-				saveCity(city);
-			}
-		}
-
-		/* POI */
-		//has correct tag?
-		Poi poi = TagChecker.getPoi(tags, filters);
-		if(poi == null) {
-			return;
-		}
-		
-		//Found Poi!
-		//add coords
-		if(point == null) {
-			point = new Point(
-					DegreeToInt(node.getLatitude()),
-					DegreeToInt(node.getLongitude())
-			);
-		}
-		poi.coords = point;
-		
-		//save
-		savePoi(poi, node);
-	}
-
-	//handle way
-	private static void handleWay(Way way) {
-		//check if has correct tags
-		Poi poi;
-		if((poi = TagChecker.getPoi(way.getTags(), filters)) == null) {
-			return;
-		}
-		
-		//has enough nodes?
-		List<WayNode> waynodes = way.getWayNodes();
-		int waynodes_length = waynodes.size();
-		if(waynodes_length < 3) {
-			return;
-		}
-		
-		//Found Poi
-		//build point list
-		List<Point> points = new ArrayList<Point>();
-		Point point;
-		for(int i = 0; i < waynodes_length; i++) {
-			//does node exist?
-			point = nodes.get(waynodes.get(i).getNodeId());
-			if(point == null) {
-				System.out.println("Warning: Skipped way Poi: "+poi);
-				return;
-			}
-			
-			//add to array
-			points.add(point);
-		}
-		
-		//get centroid
-		poi.coords = Polygon.centroid(points);
-		
-		//save
-		savePoi(poi, way);
-	}
-	
-	/* POI */
-	private static void savePoi(Poi poi, Entity entity) {
-		//add id
-		String id = "";
-		if(entity instanceof Way) {
-			id = "W";
-		} else if(entity instanceof Node) {
-			id = "N";
-		}
-		id += entity.getId();
-		poi.osmId = id;
-
-		//save
-		System.out.println(poi);
-		try { 
-			writer.write(poi.toCsv()+"\n");
-		} catch(IOException e) {
-			System.out.println("E: Output file write error");
-			System.exit(-1);
-		}
-	}
-	
-	/* City */
-	private static void saveCity(CityVO city) {
-		if(!parseCities) {
-			return;
-		}
-		
-		System.out.println(city);
-		try { 
-			writer_cities.write(city.toCsv()+"\n");
-		} catch(IOException e) {
-			System.out.println("E: Output file write error");
-			System.exit(-1);
-		}
-	}
-
-	/* Library */
-	private static int DegreeToInt(double degree) {
-		int degree2 = (int)(degree * 100000);
-		return degree2;
 	}
 }

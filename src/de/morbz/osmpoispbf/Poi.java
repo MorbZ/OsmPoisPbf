@@ -1,5 +1,5 @@
 /*
-	Copyright 2012-2013, Merten Peetz
+	Copyright 2012-2015, Merten Peetz
 	
 	This file is part of OsmPoisPbf.
 	OsmPoisPbf is free software: you can redistribute it and/or modify it under the terms of the GNU 
@@ -16,12 +16,12 @@
 
 package de.morbz.osmpoispbf;
 
-import java.awt.Point;
+import net.morbz.osmonaut.osm.LatLon;
 
 public class Poi {
 	public String name;
 	public int cat;
-	public Point coords = null;
+	public LatLon coords = null;
 	public String osmId = "";
 	
 	public String toCsv() {
@@ -32,8 +32,8 @@ public class Poi {
 		String str = "";
 		str += cat + Scanner.SEPERATOR;
 		str += osmId + Scanner.SEPERATOR;
-		str += (double)coords.x/100000 + Scanner.SEPERATOR;
-		str += (double)coords.y/100000 + Scanner.SEPERATOR;
+		str += (double)Math.round(coords.getLat()*100000)/100000 + Scanner.SEPERATOR;
+		str += (double)Math.round(coords.getLon()*100000)/100000 + Scanner.SEPERATOR;
 		str += getEscapedCsvString(name);
 		return str;
 	}

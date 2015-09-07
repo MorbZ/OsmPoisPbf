@@ -1,0 +1,3 @@
+[submodule "OSMonaut"]
+	path = OSMonaut
+	url = https://github.com/MorbZ/OSMonaut
