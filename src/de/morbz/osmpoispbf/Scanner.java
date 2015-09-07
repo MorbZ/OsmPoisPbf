@@ -1,5 +1,5 @@
 /*
-	Copyright 2012-2013, Merten Peetz
+	Copyright 2012-2015, Merten Peetz
 	
 	This file is part of OsmPoisPbf.
 	OsmPoisPbf is free software: you can redistribute it and/or modify it under the terms of the GNU 
@@ -49,6 +49,7 @@ import de.morbz.osmpoispbf.utils.StopWatch;
 
 public class Scanner {
 	private static StopWatch stop_watch = new StopWatch();
+	private static List<Filter> filters;
 	
 	//vars
 	private static Map<Long, Point> nodes;
@@ -70,6 +71,13 @@ public class Scanner {
 	//init
 	public static void main(String[] args) {
 		stop_watch.start();
+		
+		// Get filter rules
+		FilterFileParser parser = new FilterFileParser(null);
+		filters = parser.parse();
+		if(filters == null) {
+			System.exit(-1);
+		}
 		
 		//Parse command line arguments
 		System.out.println("OsmPoisPbf " + VERSION + " started");
@@ -200,7 +208,7 @@ public class Scanner {
 	//handle way nodes
 	private static void handleWayNodes(Way way) {
 		//check if has correct tags
-		if(TagChecker.getPoi(way.getTags()) == null) {
+		if(TagChecker.getPoi(way.getTags(), filters) == null) {
 			return;
 		}
 		
@@ -251,7 +259,7 @@ public class Scanner {
 
 		/* POI */
 		//has correct tag?
-		Poi poi = TagChecker.getPoi(tags);
+		Poi poi = TagChecker.getPoi(tags, filters);
 		if(poi == null) {
 			return;
 		}
@@ -274,7 +282,7 @@ public class Scanner {
 	private static void handleWay(Way way) {
 		//check if has correct tags
 		Poi poi;
-		if((poi = TagChecker.getPoi(way.getTags())) == null) {
+		if((poi = TagChecker.getPoi(way.getTags(), filters)) == null) {
 			return;
 		}
 		
