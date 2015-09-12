@@ -17,6 +17,7 @@
 package de.morbz.osmpoispbf;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -30,44 +31,162 @@ import net.morbz.osmonaut.osm.Entity;
 import net.morbz.osmonaut.osm.EntityType;
 import net.morbz.osmonaut.osm.Tags;
 import net.morbz.osmonaut.osm.Way;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import de.morbz.osmpoispbf.utils.StopWatch;
 
 public class Scanner {
 	// Const
-	public static final String SEPERATOR = "|";
 	private static final String VERSION = "v1.0.3";
 	
 	// Vars
 	private static Writer writer;
 	private static List<Filter> filters;
+	private static Options options;
+	private static boolean onlyClosedWays = true;
+	private static boolean printPois = true;
+	private static int poisFound = 0;
 	
 	public static void main(String[] args) {
-		// Start watch
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
+		System.out.println("OsmPoisPbf " + VERSION + " started");
+		
+		// Get input file
+		if(args.length < 1) {
+			System.out.println("Error: Please provide an input file");
+			System.exit(-1);
+		}
+		String inputFile = args[args.length - 1];
+		
+		// Get output file
+		String outputFile;
+		int index = inputFile.indexOf('.');
+		if(index != -1) {
+			outputFile = inputFile.substring(0, index);
+		} else {
+			outputFile = inputFile;
+		}
+		outputFile += ".csv";
+		
+		// Setup CLI parameters
+		options = new Options();
+		options.addOption("ff", "filterFile", true, "The file that is used to filter categories");
+		options.addOption("of", "outputFile", true, "The output CSV file to be written");
+		//options.addOption("rt", "requiredTags", true, "Comma separated list of tags that are required [name]");
+		//options.addOption("ot", "outputTags", true, "Comma separated list of tags that are exported [name]");
+		options.addOption("r", "relations", false, "Parse relations");
+		options.addOption("nw", "noWays", false, "Don't parse ways");
+		options.addOption("nn", "noNodes", false, "Don't parse nodes");
+		options.addOption("u", "allowUnclosedWays", false, "Allow ways that aren't closed");
+		options.addOption("d", "decimals", true, "Number of decimal places of coordinates [7]");
+		options.addOption("s", "seperator", true, "Seperator character for CSV [|]");
+		options.addOption("q", "quiet", false, "Don't print found POIs");
+		options.addOption("h", "help", false, "Print this help");
+		
+		// Parse parameters
+		CommandLine line = null;
+		try {
+			line = (new DefaultParser()).parse(options, args);
+		} catch(ParseException exp) {
+	        System.err.println(exp.getMessage());
+	        printHelp();
+	        System.exit(-1);
+	    }
+		
+		// Help
+		if(line.hasOption("help")) {
+			printHelp();
+			System.exit(0);
+		}
+		
+		// Get filter file
+		String filterFile = null;
+		if(line.hasOption("filterFile")) {
+			filterFile = line.getOptionValue("filterFile");
+		}
+		
+		// Get output file
+		if(line.hasOption("outputFile")) {
+			outputFile = line.getOptionValue("outputFile");
+		}
+		
+		// Check files
+		if(inputFile.equals(outputFile)) {
+			System.out.println("Error: Input and output files are the same");
+			System.exit(-1);
+		}
+		File file = new File(inputFile);
+		if(!file.exists()) {
+			System.out.println("Error: Input file doesn't exist");
+			System.exit(-1);
+		}
+		
+		// Check OSM entity types
+		boolean parseNodes = true;
+		boolean parseWays = true;
+		boolean parseRelations = false;
+		if(line.hasOption("noNodes")) {
+			parseNodes = false;
+		}
+		if(line.hasOption("noWays")) {
+			parseWays = false;
+		}
+		if(line.hasOption("relations")) {
+			parseRelations = true;
+		}
+		
+		// Unclosed ways allowed?
+		if(line.hasOption("allowUnclosedWays")) {
+			onlyClosedWays = false;
+		}
+		
+		// Get CSV seperator
+		char seperator = '|';
+		if(line.hasOption("seperator")) {
+			String arg = line.getOptionValue("seperator");
+			if(arg.length() != 1) {
+				System.out.println("Error: The CSV seperator has to be exactly 1 character");
+				System.exit(-1);
+			}
+			seperator = arg.charAt(0);
+		}
+		Poi.setSeperator(seperator);
+		
+		// Set decimals
+		int decimals = 7; // OSM default
+		if(line.hasOption("decimals")) {
+			String arg = line.getOptionValue("decimals");
+			try {
+				int dec = Integer.valueOf(arg);
+				if(dec < 0) {
+					System.out.println("Error: Decimals must not be less than 0");
+					System.exit(-1);
+				} else {
+					decimals = dec;
+				}
+			} catch(NumberFormatException ex) {
+				System.out.println("Error: Decimals have to be a number");
+				System.exit(-1);
+			}
+		}
+		Poi.setDecimals(decimals);
+		
+		// Quiet mode?
+		if(line.hasOption("quiet")) {
+			printPois = false;
+		}
 		
 		// Get filter rules
-		FilterFileParser parser = new FilterFileParser(null);
+		FilterFileParser parser = new FilterFileParser(filterFile);
 		filters = parser.parse();
 		if(filters == null) {
 			System.exit(-1);
 		}
-		
-		// Parse command line arguments
-		System.out.println("OsmPoisPbf " + VERSION + " started");
-		if(args.length == 0) {
-			System.out.println("Error: Please provide an input file");
-			System.exit(-1);
-		} else if(args.length > 1) {
-			System.out.println("Error: Too many parameters given");
-			System.exit(-1);
-		}
-		
-		// Make filenames
-		String pbfName = args[0];
-		String inputFile = pbfName + ".osm.pbf";
-		String outputFile = "pois_" + pbfName + ".csv";
-		
+
 		// Setup CSV output
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile),"UTF8"));
@@ -77,8 +196,12 @@ public class Scanner {
 		}
 		
 		// Setup OSMonaut
-		EntityFilter filter = new EntityFilter(true, true, false);
+		EntityFilter filter = new EntityFilter(parseNodes, parseWays, parseRelations);
 		Osmonaut naut = new Osmonaut(inputFile, filter);
+		
+		// Start watch
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		
 		// Start OSMonaut
 		naut.scan(new IOsmonautReceiver() {
@@ -90,7 +213,7 @@ public class Scanner {
 		    @Override
 		    public void foundEntity(Entity entity) {
 		    	// Check if way is closed
-		    	if(entity.getEntityType() == EntityType.WAY) {
+		    	if(onlyClosedWays && entity.getEntityType() == EntityType.WAY) {
 		    		if(!((Way)entity).isClosed()) {
 		    			return;
 		    		}
@@ -111,22 +234,31 @@ public class Scanner {
 				
 				// Make OSM-ID
 				String id = "";
-				if(entity.getEntityType() == EntityType.WAY) {
-					id = "W";
-				} else if(entity.getEntityType() == EntityType.NODE) {
-					id = "N";
+				switch(entity.getEntityType()) {
+					case NODE:
+						id = "N";
+						break;
+					case WAY:
+						id = "W";
+						break;
+					case RELATION:
+						id = "R";
+						break;
 				}
 				id += entity.getId();
 		    	
 		        // Make POI
+				poisFound++;
 				Poi poi = new Poi(name, cat, entity.getCenter(), id);
 				
 				// Output
-				System.out.println(poi);
+				if(printPois) {
+					System.out.println(poi);
+				}
 				
 				// Write to file
 				try { 
-					writer.write(poi.toCsv()+"\n");
+					writer.write(poi.toCsv() + "\n");
 				} catch(IOException e) {
 					System.out.println("Error: Output file write error");
 					System.exit(-1);
@@ -142,16 +274,24 @@ public class Scanner {
 			System.exit(-1);
 		}
 		
-		// Show elapsed time
+		// Output results
 		stopWatch.stop();
+		
+		System.out.println("POIs found: " + poisFound);
 		System.out.println("Elapsed time in milliseconds: " + stopWatch.getElapsedTime());
 		
 		// Quit
 		System.exit(0);
 	}
 	
+	// Print help
+	private static void printHelp() {
+		HelpFormatter formatter = new HelpFormatter();
+	    formatter.printHelp("[-options] file", options);
+	}
+	
 	/* Categories */
-	public static String getCategory(Tags tags, List<Filter> filters) {
+	private static String getCategory(Tags tags, List<Filter> filters) {
 		// Has at least two tags (name and tag for category)
 		if(tags.size() < 2) {
 			return null;

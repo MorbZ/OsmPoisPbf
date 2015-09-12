@@ -1,3 +1,6 @@
 [submodule "OSMonaut"]
 	path = OSMonaut
 	url = https://github.com/MorbZ/OSMonaut
+[submodule "commons-cli"]
+	path = commons-cli
+	url = https://github.com/apache/commons-cli

@@ -16,6 +16,8 @@
 
 package de.morbz.osmpoispbf;
 
+import java.util.Locale;
+
 import net.morbz.osmonaut.osm.LatLon;
 
 public class Poi {
@@ -23,6 +25,9 @@ public class Poi {
 	private String cat;
 	private LatLon coords;
 	private String osmId;
+	
+	private static String format;
+	private static char seperator;
 	
 	public Poi(String name, String cat, LatLon coords, String osmId) {
 		this.name = name;
@@ -33,10 +38,10 @@ public class Poi {
 	
 	public String toCsv() {
 		String str = "";
-		str += getEscapedCsvString(cat) + Scanner.SEPERATOR;
-		str += osmId + Scanner.SEPERATOR;
-		str += round(coords.getLat()) + Scanner.SEPERATOR;
-		str += round(coords.getLon()) + Scanner.SEPERATOR;
+		str += getEscapedCsvString(cat) + seperator;
+		str += osmId + seperator;
+		str += round(coords.getLat()) + "" + seperator;
+		str += round(coords.getLon()) + "" + seperator;
 		str += getEscapedCsvString(name);
 		return str;
 	}
@@ -46,12 +51,20 @@ public class Poi {
 	}
 	
 	private String getEscapedCsvString(String str) {
-		str = str.replace(Scanner.SEPERATOR, " ");
+		str = str.replace(seperator, ' ');
 		return str;
 	}
 	
-	private double round(double coordinate) {
-		int factor = 10000000; // 7 decimals (OSM default)
-		return (double)Math.round(coordinate * factor) / factor;
+	private String round(double coordinate) {
+		return String.format((Locale)null, format, coordinate);
+	}
+	
+	/* Setters */
+	public static void setDecimals(int decimals) {
+		format = "%." + decimals + "f";
+	}
+	
+	public static void setSeperator(char seperator) {
+		Poi.seperator = seperator;
 	}
 }

@@ -4,6 +4,4 @@
 /.settings/
 /.classpath
 /*.osm.pbf
-/pois_*.csv
-/cities_*.csv
-/releases/
+/*.csv
