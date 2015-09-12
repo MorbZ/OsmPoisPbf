@@ -137,12 +137,6 @@ public class FilterFileParser {
 				return null;
 			}
 			
-			// After a key only has to come a value only
-			if((parent.hasKey() && !parent.hasValue()) && (filter.hasKey() || !filter.hasValue())) {
-				showError("After a key only rule must come a value only rule", lineNumber);
-				return null;
-			}
-			
 			// Add to parent
 			parent.childs.add(filter);
 			filterLevels[level] = filter;
@@ -151,24 +145,19 @@ public class FilterFileParser {
 		// Verify filters
 		for(Filter filter : filters) {
 			if(!isFilterValid(filter)) {
-				System.out.println("Error: Parsing filter file: There is at least one filter without children that either has no category name or is not closed by a value");
+				System.out.println("Error: Parsing filter file: There is at least one filter without children that has no category name");
 				return null;
 			}
 		}
 		return filters;
 	}
 	
-	// Check that all end points have a category name and are closed (recursive)
+	// Check that all end points have a category name (recursive)
 	private boolean isFilterValid(Filter filter) {
 		// Check endpoint (filter without childs)
 		if(filter.childs.isEmpty()) {
 			// Check that there is a category name
 			if(!filter.hasCategory()) {
-				return false;
-			}
-			
-			// Make sure that it's not key only
-			if(filter.hasKey() && !filter.hasValue()) {
 				return false;
 			}
 		}
