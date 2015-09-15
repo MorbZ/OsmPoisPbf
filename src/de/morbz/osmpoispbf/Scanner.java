@@ -51,6 +51,8 @@ public class Scanner {
 	private static boolean onlyClosedWays = true;
 	private static boolean printPois = true;
 	private static int poisFound = 0;
+	private static String[] requiredTags = { "name" };
+	private static String[] outputTags = { "name" };
 	
 	public static void main(String[] args) {
 		System.out.println("OsmPoisPbf " + VERSION + " started");
@@ -76,8 +78,8 @@ public class Scanner {
 		options = new Options();
 		options.addOption("ff", "filterFile", true, "The file that is used to filter categories");
 		options.addOption("of", "outputFile", true, "The output CSV file to be written");
-		//options.addOption("rt", "requiredTags", true, "Comma separated list of tags that are required [name]");
-		//options.addOption("ot", "outputTags", true, "Comma separated list of tags that are exported [name]");
+		options.addOption("rt", "requiredTags", true, "Comma separated list of tags that are required [name]");
+		options.addOption("ot", "outputTags", true, "Comma separated list of tags that are exported [name]");
 		options.addOption("r", "relations", false, "Parse relations");
 		options.addOption("nw", "noWays", false, "Don't parse ways");
 		options.addOption("nn", "noNodes", false, "Don't parse nodes");
@@ -180,6 +182,18 @@ public class Scanner {
 			printPois = false;
 		}
 		
+		// Required tags
+		if(line.hasOption("requiredTags")) {
+			String arg = line.getOptionValue("requiredTags");
+			requiredTags = arg.split(",");
+		}
+		
+		// Output tags
+		if(line.hasOption("outputTags")) {
+			String arg = line.getOptionValue("outputTags");
+			outputTags = arg.split(",");
+		}
+		
 		// Get filter rules
 		FilterFileParser parser = new FilterFileParser(filterFile);
 		filters = parser.parse();
@@ -207,6 +221,19 @@ public class Scanner {
 		naut.scan(new IOsmonautReceiver() {
 		    @Override
 		    public boolean needsEntity(EntityType type, Tags tags) {
+		    	// Are there any tags?
+				if(tags.size() == 0) {
+					return false;
+				}
+				
+				// Check required tags
+		    	for(String tag : requiredTags) {
+		    		if(!tags.hasKey(tag)) {
+		    			return false;
+		    		}
+		    	}
+		    	
+		    	// Check category
 		        return getCategory(tags, filters) != null;
 		    }
 
@@ -218,15 +245,9 @@ public class Scanner {
 		    			return;
 		    		}
 		    	}
-		    	
-		    	// Get name
-		    	Tags tags = entity.getTags();
-		    	String name = tags.get("name");
-				if(name == null) {
-					return;
-				}
 				
 				// Get category
+				Tags tags = entity.getTags();
 				String cat = getCategory(tags, filters);
 				if(cat == null) {
 					return;
@@ -246,10 +267,19 @@ public class Scanner {
 						break;
 				}
 				id += entity.getId();
+				
+				// Make output tags
+				String[] values = new String[outputTags.length];
+				for(int i = 0; i < outputTags.length; i++) {
+					String key = outputTags[i];
+					if(tags.hasKey(key)) {
+						values[i] = tags.get(key);
+					}
+				}
 		    	
 		        // Make POI
 				poisFound++;
-				Poi poi = new Poi(name, cat, entity.getCenter(), id);
+				Poi poi = new Poi(values, cat, entity.getCenter(), id);
 				
 				// Output
 				if(printPois) {
@@ -292,12 +322,7 @@ public class Scanner {
 	
 	/* Categories */
 	private static String getCategory(Tags tags, List<Filter> filters) {
-		// Has at least two tags (name and tag for category)
-		if(tags.size() < 2) {
-			return null;
-		}
-		
-		// Check category
+		// Iterate filters
 		String cat = null;
 		for(Filter filter : filters) {
 			cat = getCategoryRecursive(filter, tags, null);
