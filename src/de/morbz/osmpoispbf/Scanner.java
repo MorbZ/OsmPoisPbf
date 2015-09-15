@@ -49,10 +49,12 @@ public class Scanner {
 	private static List<Filter> filters;
 	private static Options options;
 	private static boolean onlyClosedWays = true;
-	private static boolean printPois = true;
+	private static boolean printPois = false;
 	private static int poisFound = 0;
 	private static String[] requiredTags = { "name" };
 	private static String[] outputTags = { "name" };
+	private static int lastPrintLen = 0;
+	private static long lastMillis = 0;
 	
 	public static void main(String[] args) {
 		System.out.println("OsmPoisPbf " + VERSION + " started");
@@ -86,7 +88,7 @@ public class Scanner {
 		options.addOption("u", "allowUnclosedWays", false, "Allow ways that aren't closed");
 		options.addOption("d", "decimals", true, "Number of decimal places of coordinates [7]");
 		options.addOption("s", "seperator", true, "Seperator character for CSV [|]");
-		options.addOption("q", "quiet", false, "Don't print found POIs");
+		options.addOption("v", "verbose", false, "Print all found POIs");
 		options.addOption("h", "help", false, "Print this help");
 		
 		// Parse parameters
@@ -177,9 +179,9 @@ public class Scanner {
 		}
 		Poi.setDecimals(decimals);
 		
-		// Quiet mode?
-		if(line.hasOption("quiet")) {
-			printPois = false;
+		// Verbose mode?
+		if(line.hasOption("verbose")) {
+			printPois = true;
 		}
 		
 		// Required tags
@@ -284,6 +286,10 @@ public class Scanner {
 				// Output
 				if(printPois) {
 					System.out.println(poi);
+				} else if(System.currentTimeMillis() > lastMillis + 40) {
+					// Update counter every 40 millis
+					printPoisFound();
+					lastMillis = System.currentTimeMillis();
 				}
 				
 				// Write to file
@@ -307,11 +313,25 @@ public class Scanner {
 		// Output results
 		stopWatch.stop();
 		
-		System.out.println("POIs found: " + poisFound);
+		printPoisFound();
+		System.out.println();
 		System.out.println("Elapsed time in milliseconds: " + stopWatch.getElapsedTime());
 		
 		// Quit
 		System.exit(0);
+	}
+	
+	private static void printPoisFound() {
+		// Clear output
+		while(lastPrintLen > 0) {
+			System.out.print('\b');
+			lastPrintLen--;
+		}
+		
+		// Output count
+		String newStr = poisFound + " POIs found";
+		System.out.print(newStr);
+		lastPrintLen = newStr.length();
 	}
 	
 	// Print help
