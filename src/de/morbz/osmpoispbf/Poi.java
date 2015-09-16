@@ -27,7 +27,7 @@ public class Poi {
 	private String osmId;
 	
 	private static String format;
-	private static char seperator;
+	private static char separator;
 	
 	public Poi(String[] values, String cat, LatLon coords, String osmId) {
 		this.values = values;
@@ -40,10 +40,10 @@ public class Poi {
 		String str = "";
 		
 		// Add basic information
-		str += getEscapedCsvString(cat) + seperator;
-		str += osmId + seperator;
-		str += round(coords.getLat()) + "" + seperator;
-		str += round(coords.getLon()) + "" + seperator;
+		str += getEscapedCsvString(cat) + separator;
+		str += osmId + separator;
+		str += round(coords.getLat()) + "" + separator;
+		str += round(coords.getLon()) + "" + separator;
 		
 		// Add output tags
 		for(int i = 0; i < values.length; i++) {
@@ -51,7 +51,7 @@ public class Poi {
 				str += getEscapedCsvString(values[i]);
 			}
 			if(values.length - 1 != i) {
-				str += seperator;
+				str += separator;
 			}
 		}
 		return str;
@@ -73,7 +73,7 @@ public class Poi {
 	}
 	
 	private String getEscapedCsvString(String str) {
-		str = str.replace(seperator, ' ');
+		str = str.replace(separator, ' ');
 		return str;
 	}
 	
@@ -86,7 +86,7 @@ public class Poi {
 		format = "%." + decimals + "f";
 	}
 	
-	public static void setSeperator(char seperator) {
-		Poi.seperator = seperator;
+	public static void setSeparator(char separator) {
+		Poi.separator = separator;
 	}
 }

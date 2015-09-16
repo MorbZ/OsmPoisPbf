@@ -87,7 +87,7 @@ public class Scanner {
 		options.addOption("nn", "noNodes", false, "Don't parse nodes");
 		options.addOption("u", "allowUnclosedWays", false, "Allow ways that aren't closed");
 		options.addOption("d", "decimals", true, "Number of decimal places of coordinates [7]");
-		options.addOption("s", "seperator", true, "Seperator character for CSV [|]");
+		options.addOption("s", "separator", true, "Separator character for CSV [|]");
 		options.addOption("v", "verbose", false, "Print all found POIs");
 		options.addOption("h", "help", false, "Print this help");
 		
@@ -148,17 +148,17 @@ public class Scanner {
 			onlyClosedWays = false;
 		}
 		
-		// Get CSV seperator
-		char seperator = '|';
-		if(line.hasOption("seperator")) {
-			String arg = line.getOptionValue("seperator");
+		// Get CSV separator
+		char separator = '|';
+		if(line.hasOption("separator")) {
+			String arg = line.getOptionValue("separator");
 			if(arg.length() != 1) {
-				System.out.println("Error: The CSV seperator has to be exactly 1 character");
+				System.out.println("Error: The CSV separator has to be exactly 1 character");
 				System.exit(-1);
 			}
-			seperator = arg.charAt(0);
+			separator = arg.charAt(0);
 		}
-		Poi.setSeperator(seperator);
+		Poi.setSeparator(separator);
 		
 		// Set decimals
 		int decimals = 7; // OSM default
