@@ -213,7 +213,7 @@ public class Scanner {
 		
 		// Setup OSMonaut
 		EntityFilter filter = new EntityFilter(parseNodes, parseWays, parseRelations);
-		Osmonaut naut = new Osmonaut(inputFile, filter);
+		Osmonaut naut = new Osmonaut(inputFile, filter, false);
 		
 		// Start watch
 		StopWatch stopWatch = new StopWatch();
