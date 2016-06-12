@@ -12,7 +12,7 @@ Simple Usage
 
 Output
 --------------
-The first four columns of the CSV are always the same. The following columns depend on which `outputTags` have been defined, in order they appear in the parameter list (see "Parameters" below). By default "name" is the only tag that's exported.
+The program creates a CSV file (by default a pipe-seperated-file `|` as these are rarely used in location names). The first four columns are always the same. The following columns depend on which `outputTags` have been defined, in order they appear in the parameter list (see "Parameters" below). By default "name" is the only tag that's exported.
 
 ### Sample ###
 Spaces added for better readability:
@@ -32,13 +32,14 @@ or
 
 Parameters
 --------------
-Command line parameters can be used to customize the results. The usage is: `java -jar osmpois.jar <parameters> <PBF-file>`
+Command line parameters can be used to customize the results. The usage is:  
+`java -jar osmpois.jar <parameters> <PBF-file>`
 
 | Long | Short | Description | Default |
 |---|---|---|---|---|
 | `--filterFile <file>` | `-ff`  | Custom filter file that is used to define POI categories | [filters.txt](https://github.com/MorbZ/OsmPoisPbf/blob/master/res/filters.txt) |
-| `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv ending |
-| `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be exported | `name` |
+| `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv extension |
+| `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be considered for export | `name` |
 | `--outputTags <list>` | `-ot` | Comma separated list of tags that are exported | `name` |
 | `--relations` | `-r` | Also parse relations. By default only ways and nodes are parsed. Requires more RAM and more time. | |
 | `--noWays` | `-nw` | Don't parse ways/areas | |
