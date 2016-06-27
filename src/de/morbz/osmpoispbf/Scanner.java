@@ -29,6 +29,7 @@ import net.morbz.osmonaut.IOsmonautReceiver;
 import net.morbz.osmonaut.Osmonaut;
 import net.morbz.osmonaut.osm.Entity;
 import net.morbz.osmonaut.osm.EntityType;
+import net.morbz.osmonaut.osm.LatLon;
 import net.morbz.osmonaut.osm.Tags;
 import net.morbz.osmonaut.osm.Way;
 
@@ -42,7 +43,7 @@ import de.morbz.osmpoispbf.utils.StopWatch;
 
 public class Scanner {
 	// Const
-	private static final String VERSION = "v1.1";
+	private static final String VERSION = "v1.1.2";
 	
 	// Vars
 	private static Writer writer;
@@ -255,6 +256,12 @@ public class Scanner {
 					return;
 				}
 				
+				// Get center
+				LatLon center = entity.getCenter();
+				if(center == null) {
+					return;
+				}
+				
 				// Make OSM-ID
 				String id = "";
 				switch(entity.getEntityType()) {
@@ -281,7 +288,7 @@ public class Scanner {
 		    	
 		        // Make POI
 				poisFound++;
-				Poi poi = new Poi(values, cat, entity.getCenter(), id);
+				Poi poi = new Poi(values, cat, center, id);
 				
 				// Output
 				if(printPois) {
