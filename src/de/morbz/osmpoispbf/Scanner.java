@@ -214,7 +214,8 @@ public class Scanner {
 		
 		// Setup OSMonaut
 		EntityFilter filter = new EntityFilter(parseNodes, parseWays, parseRelations);
-		Osmonaut naut = new Osmonaut(inputFile, filter, false);
+		Osmonaut naut = new Osmonaut(inputFile, filter);
+		naut.setWayNodeTags(false);
 		
 		// Start watch
 		StopWatch stopWatch = new StopWatch();
