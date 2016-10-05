@@ -41,6 +41,7 @@ Command line parameters can be used to customize the results. The usage is:
 | `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv extension |
 | `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be considered for export. Use `,` as argument to make it empty. | `name` |
 | `--outputTags <list>` | `-ot` | Comma separated list of tags that are exported. Use `,` as argument to make it empty. | `name` |
+| `--printHeader` | `-ph` | If flag is set, the `outputTags` are printed as first line in the output file. |  |
 | `--relations` | `-r` | Also parse relations. By default only ways and nodes are parsed. Requires more RAM and more time. | |
 | `--noWays` | `-nw` | Don't parse ways/areas | |
 | `--noNodes` | `-nn` | Don't parse nodes | |
