@@ -40,6 +40,7 @@ Command line parameters can be used to customize the results. The usage is:
 | `--filterFile <file>` | `-ff`  | Custom filter file that is used to define POI categories | [filters.txt](https://github.com/MorbZ/OsmPoisPbf/blob/master/res/filters.txt) |
 | `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv extension |
 | `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be considered for export. Use `,` as argument to make it empty. | `name` |
+| `--undesiredTags <list>` | `-rt` | Comma separated list of tags=value combinations that should be filtered [key=value]. | |
 | `--outputTags <list>` | `-ot` | Comma separated list of tags that are exported. Use `,` as argument to make it empty. | `name` |
 | `--relations` | `-r` | Also parse relations. By default only ways and nodes are parsed. Requires more RAM and more time. | |
 | `--noWays` | `-nw` | Don't parse ways/areas | |

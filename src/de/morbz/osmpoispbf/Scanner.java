@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
+import java.util.*;
 
 import net.morbz.osmonaut.EntityFilter;
 import net.morbz.osmonaut.IOsmonautReceiver;
@@ -54,6 +54,7 @@ public class Scanner {
 	private static int poisFound = 0;
 	private static String[] requiredTags = { "name" };
 	private static String[] outputTags = { "name" };
+	private static Map<String, Set<String>> undesiredTags = null;
 	private static int lastPrintLen = 0;
 	private static long lastMillis = 0;
 	
@@ -82,6 +83,7 @@ public class Scanner {
 		options.addOption("ff", "filterFile", true, "The file that is used to filter categories");
 		options.addOption("of", "outputFile", true, "The output CSV file to be written");
 		options.addOption("rt", "requiredTags", true, "Comma separated list of tags that are required [name]");
+		options.addOption("ut", "undesiredTags", true, "Comma separated list of tags=value combinations that should be filtered [key=value]");
 		options.addOption("ot", "outputTags", true, "Comma separated list of tags that are exported [name]");
 		options.addOption("r", "relations", false, "Parse relations");
 		options.addOption("nw", "noWays", false, "Don't parse ways");
@@ -190,6 +192,23 @@ public class Scanner {
 			String arg = line.getOptionValue("requiredTags");
 			requiredTags = arg.split(",");
 		}
+
+		// Undesired tags
+		if(line.hasOption("undesiredTags")) {
+			String arg = line.getOptionValue("undesiredTags");
+			undesiredTags = new HashMap<>();
+			for (String undesired:arg.split(",")) {
+				String[] keyVal = undesired.split("=");
+				if(keyVal.length != 2){
+					System.out.println("Error: Undesired Tags have to formated like tag=value");
+					System.exit(-1);
+				}
+				if(!undesiredTags.containsKey(keyVal[0])){
+					undesiredTags.put(keyVal[0], new HashSet<>(1));
+				}
+				undesiredTags.get(keyVal[0]).add(keyVal[1]);
+			}
+		}
 		
 		// Output tags
 		if(line.hasOption("outputTags")) {
@@ -219,9 +238,12 @@ public class Scanner {
 		// Start watch
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		
+
 		// Start OSMonaut
 		naut.scan(new IOsmonautReceiver() {
+
+			boolean entityNeeded;
+
 		    @Override
 		    public boolean needsEntity(EntityType type, Tags tags) {
 		    	// Are there any tags?
@@ -236,8 +258,21 @@ public class Scanner {
 		    		}
 		    	}
 		    	
-		    	// Check category
-		        return getCategory(tags, filters) != null;
+				entityNeeded = getCategory(tags, filters) != null;
+
+				if(undesiredTags != null && entityNeeded){
+					for (String key: undesiredTags.keySet()) {
+						if(tags.hasKey(key)){
+							for (String val: undesiredTags.get(key)) {
+								if(tags.hasKeyValue(key, val)){
+									return false;
+								}
+							}
+						}
+					}
+				}
+
+				return entityNeeded;
 		    }
 
 		    @Override
