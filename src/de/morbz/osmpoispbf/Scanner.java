@@ -81,6 +81,7 @@ public class Scanner {
 		options.addOption("of", "outputFile", true, "The output CSV file to be written");
 		options.addOption("rt", "requiredTags", true, "Comma separated list of tags that are required [name]");
 		options.addOption("ot", "outputTags", true, "Comma separated list of tags that are exported [name]");
+		options.addOption("ph", "printHeader", false, "Print CSV header as first line in the output file");
 		options.addOption("r", "relations", false, "Parse relations");
 		options.addOption("nw", "noWays", false, "Don't parse ways");
 		options.addOption("nn", "noNodes", false, "Don't parse nodes");
@@ -210,6 +211,20 @@ public class Scanner {
 		} catch(IOException e) {
 			System.out.println("Error: Output file error");
 			System.exit(-1);
+		}
+
+		// Print Header
+		if(line.hasOption("printHeader")) {
+			String header = "category" + separator + "osm_id" + separator + "lat" + separator + "lon";
+			for(int i = 0; i < outputTags.length; i++) {
+				header += separator + outputTags[i];
+			}
+			try {
+				writer.write(header + "\n");
+			} catch(IOException e) {
+				System.out.println("Error: Output file write error");
+				System.exit(-1);
+			}
 		}
 
 		// Setup OSMonaut
