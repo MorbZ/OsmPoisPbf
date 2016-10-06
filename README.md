@@ -1,6 +1,6 @@
 **Scans an OpenStreetMap file for nodes and areas (and relations) whose tags indicate them as POIs (points of interest) and extracts those into a comma separated file.**
 
-The parsing of the tags is by default based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. You can however define a custom filter file for parsing the POIs (see "Filter File" below). For areas the positions of their geometrical centre is used. When there is a node above a same tagged area there will be duplicates. The [OSMonaut](https://github.com/MorbZ/OSMonaut) framework is used to parse the OSM files. Java 7 is required to run this program.
+The parsing of the tags is by default based on a collocation using the OSM Wiki [Map Features](http://wiki.openstreetmap.org/wiki/Map_Features) list. You can however define a custom filter file for parsing the POIs (see "Filter File" below). For areas the positions of their geometrical centre is used. When there is a node above a same tagged area there will be duplicates. The [OSMonaut](https://github.com/MorbZ/OSMonaut) framework is used to parse the OSM files. Java 8 is required to run this program.
 
 Simple Usage
 --------------
@@ -45,6 +45,8 @@ Command line parameters can be used to customize the results. The usage is:
 | `--noWays` | `-nw` | Don't parse ways/areas | |
 | `--noNodes` | `-nn` | Don't parse nodes | |
 | `--allowUnclosedWays` | `-u` | Allow ways that aren't closed. By default only closed ways (areas) are allowed. | |
+| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. | |
+| `--processors` | `-p` | Number of processors (threads) used to parse the PBF file | Number of CPU cores (max. 4) |
 | `--decimals <number>` | `-d` | Number of decimal places of coordinates | `7` (OSM default) |
 | `--separator <character>` | `-s` | Character that is used to separate columns in the CSV file. Will be replaced by a space if it occurs in names. | `|` |
 | `--verbose` | `-v` | Display every single found POI instead of a counter | |

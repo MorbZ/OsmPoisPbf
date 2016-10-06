@@ -85,6 +85,8 @@ public class Scanner {
 		options.addOption("nw", "noWays", false, "Don't parse ways");
 		options.addOption("nn", "noNodes", false, "Don't parse nodes");
 		options.addOption("u", "allowUnclosedWays", false, "Allow ways that aren't closed");
+		options.addOption("lm", "lowMemory", false, "Enables Low memory mode that stores caches on disk instead of memory");
+		options.addOption("p", "processors", true, "Number of processors used to parse the PBF file");
 		options.addOption("d", "decimals", true, "Number of decimal places of coordinates [7]");
 		options.addOption("s", "separator", true, "Separator character for CSV [|]");
 		options.addOption("v", "verbose", false, "Print all found POIs");
@@ -214,6 +216,31 @@ public class Scanner {
 		EntityFilter filter = new EntityFilter(parseNodes, parseWays, parseRelations);
 		Osmonaut naut = new Osmonaut(inputFile, filter);
 		naut.setWayNodeTags(false);
+
+		// Low memory mode
+		if(line.hasOption("lowMemory")) {
+			naut.setStoreOnDisk(true);
+		};
+
+		// Number of processors
+		if(line.hasOption("processors")) {
+			int processors = 0;
+			String arg = line.getOptionValue("processors");
+
+			try {
+				processors = Integer.valueOf(arg);
+			} catch(NumberFormatException ex) {
+				System.out.println("Error: Number of processors have to be a number");
+				System.exit(-1);
+			}
+
+			if(processors < 1) {
+				System.out.println("Error: Number of processors must not be less than 1");
+				System.exit(-1);
+			}
+
+			naut.setProcessors(processors);
+		}
 
 		// Start watch
 		StopWatch stopWatch = new StopWatch();
