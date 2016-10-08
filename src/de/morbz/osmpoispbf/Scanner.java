@@ -22,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -54,6 +56,7 @@ public class Scanner {
 	private static String[] requiredTags = { "name" };
 	private static String[] outputTags = { "name" };
 	private static long lastMillis = 0;
+	private static char separator = '|';
 
 	public static void main(String[] args) {
 		System.out.println("OsmPoisPbf " + VERSION + " started");
@@ -151,7 +154,6 @@ public class Scanner {
 		}
 
 		// Get CSV separator
-		char separator = '|';
 		if(line.hasOption("separator")) {
 			String arg = line.getOptionValue("separator");
 			if(arg.length() != 1) {
@@ -160,7 +162,6 @@ public class Scanner {
 			}
 			separator = arg.charAt(0);
 		}
-		Poi.setSeparator(separator);
 
 		// Set decimals
 		int decimals = 7; // OSM default
@@ -215,16 +216,14 @@ public class Scanner {
 
 		// Print Header
 		if(line.hasOption("printHeader")) {
-			String header = "category" + separator + "osm_id" + separator + "lat" + separator + "lon";
-			for(int i = 0; i < outputTags.length; i++) {
-				header += separator + outputTags[i];
-			}
-			try {
-				writer.write(header + "\n");
-			} catch(IOException e) {
-				System.out.println("Error: Output file write error");
-				System.exit(-1);
-			}
+			// Build header
+			String[] headerFields = { "category", "osm_id", "lat", "lon" };
+			List<String> fields = new ArrayList<String>();
+			fields.addAll(Arrays.asList(headerFields));
+			fields.addAll(Arrays.asList(outputTags));
+
+			// Write
+			writeCsvLine(fields);
 		}
 
 		// Setup OSMonaut
@@ -341,12 +340,7 @@ public class Scanner {
 				}
 
 				// Write to file
-				try { 
-					writer.write(poi.toCsv() + "\n");
-				} catch(IOException e) {
-					System.out.println("Error: Output file write error");
-					System.exit(-1);
-				}
+				writeCsvLine(poi.getCsvFields());
 			}
 		});
 
@@ -367,6 +361,29 @@ public class Scanner {
 
 		// Quit
 		System.exit(0);
+	}
+
+	private static void writeCsvLine(List<String> fields) {
+		// Escape separator
+		for(int i = 0; i < fields.size(); i++) {
+			String field = fields.get(i);
+			if(field == null) {
+				field = "";
+			}
+			field = field.replace(separator, ' ');
+			fields.set(i, field);
+		}
+
+		// Join fields
+		String line = String.join(String.valueOf(separator), fields);
+
+		// Write
+		try {
+			writer.write(line + "\n");
+		} catch(IOException e) {
+			System.out.println("Error: Output file write error");
+			System.exit(-1);
+		}
 	}
 
 	private static void printPoisFound() {
