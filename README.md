@@ -12,7 +12,7 @@ Simple Usage
 
 Output
 --------------
-The program creates a CSV file (by default a pipe-seperated-file `|` as these are rarely used in location names). The first four columns are always the same. The following columns depend on which `outputTags` have been defined, in order they appear in the parameter list (see "Parameters" below). By default "name" is the only tag that's exported.
+The program creates a CSV file (by default a pipe-separated-file `|` as these are rarely used in location names). The first four columns are always the same. The following columns depend on which `outputTags` have been defined, in order they appear in the parameter list (see "Parameters" below). By default "name" is the only tag that's exported.
 
 ### Sample ###
 Spaces added for better readability:
