@@ -7,8 +7,8 @@ Simple Usage
 * Download the lastest **osmpois.jar** file from the [releases page](https://github.com/MorbZ/OsmPoisPbf/releases)
 * Get the [planet file](http://planet.openstreetmap.org/pbf/) or any [other](http://download.geofabrik.de/) .osm.pbf file
 * Put the OpenStreetMap binary file (.pbf) in same directory as the jar file
-* Run Java in a terminal (make sure you have at least 9GB of free RAM for the whole planet):  
-    `java -Xmx9g -jar osmpois.jar planet.osm.pbf`
+* Run Java in a terminal. Make sure you have at least 4GB of free RAM for the whole planet (if you don't enable low memory mode):  
+    `java -Xmx4g -jar osmpois.jar planet.osm.pbf`
 
 Output
 --------------
@@ -46,8 +46,8 @@ Command line parameters can be used to customize the results. The usage is:
 | `--noWays` | `-nw` | Don't parse ways/areas | |
 | `--noNodes` | `-nn` | Don't parse nodes | |
 | `--allowUnclosedWays` | `-u` | Allow ways that aren't closed. By default only closed ways (areas) are allowed. | |
-| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. | |
-| `--processors` | `-p` | Number of processors (threads) used to parse the PBF file | Number of CPU cores (max. 4) |
+| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. See [benchmarks](#Benchmarks) | |
+| `--processors` | `-p` | Number of processors (threads) used to parse the PBF file. See [benchmarks](#Benchmarks) | Number of CPU cores (max. 4) |
 | `--decimals <number>` | `-d` | Number of decimal places of coordinates | `7` (OSM default) |
 | `--separator <character>` | `-s` | Character that is used to separate columns in the CSV file. Will be replaced by a space if it occurs in names. | `|` |
 | `--verbose` | `-v` | Display every single found POI instead of a counter | |
@@ -74,9 +74,49 @@ Sub-rules can be defined by indenting a rule by 2 spaces and are only considered
 - After a `=<value>` rule must come a rule that has a key
 - `<category_name>` is optional except at the endpoints (last sub-rules in the chain)
 
-Memory Usage / Performance
+Benchmarks
 --------------
-The program loads only necessary geographical data into the memory. The nodes and areas are then parsed without being fully loaded into memory. For the whole planet this takes at least 9GB of RAM using the default settings and about 1 hour on a EC2 m3.xlarge instance (as of September 2015). Make sure you fit the `-Xmx` parameter.
+The following benchmarks have been executed on EC2 instances using internal SSDs for I/O with OsmPoisPbf v1.2, planet file planet-160905.osm.pbf (33 GB) and the default filters file resulting in 12,920,537 POIs:
+
+#### c3.2xlarge (8 vCPU, 15 GB Ram) with `-Xmx13g`, varying `--processors` parameter ####
+
+| processors | time (h) |
+|---|---|
+| 1 | 00:37:41 |
+| 2 | 00:21:41 |
+| 3 | 00:16:42 |
+| 4 | 00:16:04 |
+| 5 | **00:15:57** |
+| 6 | 00:16:05 |
+| 7 | 00:16:44 |
+| 8 | 00:18:01 |
+
+#### c3.2xlarge (8 vCPU, 15 GB Ram) with `--processors 4`, varying `-Xmx` parameter ####
+
+| memory | time (h) |
+|---|---|
+| 4 GB | 01:17:21 |
+| 5 GB | 00:48:39 |
+| 6 GB | 00:31:41 |
+| 8 GB | 00:18:24 |
+| 13 GB | **00:16:04** |
+
+#### c3.xlarge (4 vCPU, 7.5 GB Ram) with `--processors 4` and `--lowMemory`, varying `-Xmx` parameter ####
+
+| memory | time (h) |
+|---|---|
+| 1434 MB | 07:11:23 |
+| 2 GB | 06:09:58 |
+| 4 GB | 05:45:08 |
+
+The files caches created on disk during processing were 12.76 GB in size.
+
+#### Conclusion ####
+
+* `--processors` should be set to 4 - 5 for fastest processing
+* The more memory you give with `-Xmx` the faster. But above 8 GB there are only small improvements.
+* If there is less than 4 GB of memory available you should use the `--lowMemory` mode
+* Even in `--lowMemory` the program needs at least around 1.5 GB RAM
 
 License
 --------------
