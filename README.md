@@ -46,8 +46,8 @@ Command line parameters can be used to customize the results. The usage is:
 | `--noWays` | `-nw` | Don't parse ways/areas | |
 | `--noNodes` | `-nn` | Don't parse nodes | |
 | `--allowUnclosedWays` | `-u` | Allow ways that aren't closed. By default only closed ways (areas) are allowed. | |
-| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. See [benchmarks](#Benchmarks) | |
-| `--processors` | `-p` | Number of processors (threads) used to parse the PBF file. See [benchmarks](#Benchmarks) | Number of CPU cores (max. 4) |
+| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. See [benchmarks](#benchmarks) | |
+| `--processors` | `-p` | Number of processors (threads) used to parse the PBF file. See [benchmarks](#benchmarks) | Number of CPU cores (max. 4) |
 | `--decimals <number>` | `-d` | Number of decimal places of coordinates | `7` (OSM default) |
 | `--separator <character>` | `-s` | Character that is used to separate columns in the CSV file. Will be replaced by a space if it occurs in names. | `|` |
 | `--verbose` | `-v` | Display every single found POI instead of a counter | |

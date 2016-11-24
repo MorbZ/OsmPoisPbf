@@ -44,7 +44,7 @@ import net.morbz.osmonaut.osm.Way;
 
 public class Scanner {
 	// Const
-	private static final String VERSION = "v1.1.2";
+	private static final String VERSION = "v1.2";
 
 	// Vars
 	private static Writer writer;
