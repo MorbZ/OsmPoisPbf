@@ -35,23 +35,23 @@ Parameters
 Command line parameters can be used to customize the results. The usage is:  
 `java -jar osmpois.jar <parameters> <PBF-file>`
 
-| Long | Short | Description | Default |   |
-|------|-------|-------------|---------|---|
+| Long | Short | Description | Default |
+|------|-------|-------------|---------|
 | `--filterFile <file>` | `-ff`  | Custom filter file that is used to define POI categories | [filters.txt](https://github.com/MorbZ/OsmPoisPbf/blob/master/res/filters.txt) |
 | `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv extension |
 | `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be considered for export. Use `,` as argument to make it empty. | `name` |
 | `--outputTags <list>` | `-ot` | Comma separated list of tags that are exported. Use `,` as argument to make it empty. | `name` |
-| `--printHeader` | `-ph` | Print CSV header with `outputTags` as first line in the output file. |  |
-| `--relations` | `-r` | Also parse relations. By default only ways and nodes are parsed. Requires more RAM and more time. | |
-| `--noWays` | `-nw` | Don't parse ways/areas | |
-| `--noNodes` | `-nn` | Don't parse nodes | |
+| `--printHeader` | `-ph` | Print CSV header with `outputTags` as first line in the output file. |
+| `--relations` | `-r` | Also parse relations. By default only ways and nodes are parsed. Requires more RAM and more time. |
+| `--noWays` | `-nw` | Don't parse ways/areas |
+| `--noNodes` | `-nn` | Don't parse nodes |
 | `--allowUnclosedWays` | `-u` | Allow ways that aren't closed. By default only closed ways (areas) are allowed. | |
-| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. See [benchmarks](#benchmarks) | |
+| `--lowMemory` | `-lm` | Enables Low memory mode that stores caches on disk instead of memory. Takes longer and requires sufficient disk space. See [benchmarks](#benchmarks) |
 | `--processors` | `-p` | Number of processors (threads) used to parse the PBF file. See [benchmarks](#benchmarks) | Number of CPU cores (max. 4) |
 | `--decimals <number>` | `-d` | Number of decimal places of coordinates | `7` (OSM default) |
 | `--separator <character>` | `-s` | Character that is used to separate columns in the CSV file. Will be replaced by a space if it occurs in names. | `|` |
-| `--verbose` | `-v` | Display every single found POI instead of a counter | |
-| `--help` | `-h` | Print the help and exit the program | |
+| `--verbose` | `-v` | Display every single found POI instead of a counter |
+| `--help` | `-h` | Print the help and exit the program |
 
 Filter File
 --------------
