@@ -35,8 +35,8 @@ Parameters
 Command line parameters can be used to customize the results. The usage is:  
 `java -jar osmpois.jar <parameters> <PBF-file>`
 
-| Long | Short | Description | Default |
-|---|---|---|---|---|
+| Long | Short | Description | Default |   |
+|------|-------|-------------|---------|---|
 | `--filterFile <file>` | `-ff`  | Custom filter file that is used to define POI categories | [filters.txt](https://github.com/MorbZ/OsmPoisPbf/blob/master/res/filters.txt) |
 | `--outputFile <file>` | `-of` | The name of the resulting CSV file | Name of input file with .csv extension |
 | `--requiredTags <list>` | `-rt` | Comma separated list of tags (keys) that an element must have in order to be considered for export. Use `,` as argument to make it empty. | `name` |
